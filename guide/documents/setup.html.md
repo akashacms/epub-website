@@ -111,4 +111,5 @@ module.exports = config;
 Notice this is a little more comprehensive, and includes Bootstrap support to assist with layout.  The plugins are all oriented to website creation.
 
 An important thing to note in this case is two different layout directories.  We'll get to this elsewhere, but there are various ways to format an online EPUB viewer for an optimum reading experience.
- 
+
+This config includes the `epub-website` plugin, which is the plugin containing this particular guidebook. 

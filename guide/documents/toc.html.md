@@ -15,5 +15,7 @@ language: "English"
 <ol type="1" start="1">
     <li><a href="introduction.html" id="introduction">Introduction</a></li>
     <li><a href="setup.html" id="setup">Setup</a></li>
+    <li><a href="layout-fixed.html" id="layout-fixed">Example fixed layout for an EPUB reading experience</a></li>
+    <li><a href="layout-flexbox.html" id="layout-flexbox">Example flexbox-based layout for an EPUB reading experience</a></li>
 </ol>
 </nav>
