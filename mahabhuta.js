@@ -4,6 +4,7 @@
 const akasha    = require('akasharender');
 const mahabhuta = require('mahabhuta');
 const cheerio   = require('cheerio');
+const util      = require('util');
 
 const log   = require('debug')('epub-website:mahabhuta');
 const error = require('debug')('epub-website:mahabhuta');
@@ -30,12 +31,13 @@ class EBookPageHeader extends mahabhuta.CustomElement {
         var divclass = $element.attr('class');
         var divid    = $element.attr('id');
         var headerHeight = $element.attr('header-height');
-        var logoWidth = $element.attr('logo-width');
+        var logoWidth  = $element.attr('logo-width');
         var logoHeight = $element.attr('logo-height');
         return akasha.readDocument(metadata.config, bookHomeURL)
         .then(document => {
-            if (!logoWidth) logoWidth = document.metadata.logoWidth;
-            if (!logoHeight) logoWidth = document.metadata.logoHeight;
+            if (typeof logoWidth === 'undefined' || logoWidth === '')   logoWidth  = document.metadata.logoWidth;
+            if (typeof logoHeight === 'undefined' || logoHeight === '') logoHeight = document.metadata.logoHeight;
+            // console.log(`ebook-page-header ${logoWidth} ${logoHeight} ${bookHomeURL} ${util.inspect(document.metadata)}`);
             return akasha.partial(metadata.config, template, {
                 divclass,
                 divid,
