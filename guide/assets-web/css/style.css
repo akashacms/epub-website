@@ -1,0 +1,92 @@
+
+.ebook-page-flex, .ebook-page-fixed {
+    height:100%;
+    max-height:100%;
+    margin:0;
+}
+
+/* Using fixed layout techniques */
+
+.ebook-page-fixed #ebook-masthead {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 60px;
+    width: 100%;
+}
+
+.ebook-page-fixed #ebook-masthead h2 {
+    font-size: 22px;
+    margin-top: 0px;
+}
+
+.ebook-page-fixed #ebook-navigation {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 120px;
+    height: 60px;
+    width: 100%;
+}
+
+.ebook-page-fixed #book-page-content {
+    position: absolute;
+    top: 120px;
+    left: 0;
+    right: 0;
+    bottom: 50px;
+    width: 100%;
+    overflow: auto;
+}
+
+.ebook-page-fixed #footer-row {
+    position: absolute;
+    height: 50px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* Using flexbox layout techniques */
+
+.ebook-page-flex #page-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+.ebook-page-flex #site-navbar {
+    flex-shrink: 0;
+    height: 30px;
+}
+
+.ebook-page-flex #ebook-masthead {
+    flex-shrink: 0;
+    height: 60px;
+}
+
+.ebook-page-flex #ebook-masthead h2 {
+    font-size: 22px;
+    margin-top: 0px;
+}
+
+.ebook-page-flex #ebook-navigation {
+    flex-shrink: 0;
+    height: 60px;
+}
+
+.ebook-page-flex #book-page-content {
+    flex-grow: 1;
+    overflow: auto;
+    min-height: 2em;
+}
+
+.ebook-page-flex #footer-row {
+    flex-shrink: 0;
+    height: 50px;
+    background-color: grey;
+}

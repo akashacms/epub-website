@@ -1,0 +1,35 @@
+{
+  "name": "epub-website-guide",
+  "version": "0.1.0",
+  "description": "Guidebook for rendering EPUB's as a website",
+  "scripts": {
+    "cleanepub": "rm -rf rendered",
+    "prebuildepub": "akasharender copy-assets config-epub.js",
+    "buildepub": "akasharender render config-epub.js",
+    "postbuildepub": "epubtools mimetype rendered && epubtools containerxml rendered book.yml && epubtools makemeta rendered book.yml",
+    "bundle": "epubtools package rendered book.yml",
+    "rebuild": "npm run cleanepub && npm run buildepub && npm run bundle",
+    "bootstrapinstall": "bower --allow-root install",
+    "bootstrapsetup": "cd bower_components/bootstrap && npm install && npm install grunt-cli && mkdir -p js/tests/unit && cp js/.jshintrc js/tests/unit && mkdir -p docs/assets/js && touch docs/assets/js/raw-files.min.js",
+    "bootstrapbuild": "cp readable/Gruntfile.js bower_components/bootstrap && cp readable/variables.less bower_components/bootstrap/less && cp readable/csslintrc bower_components/bootstrap/less/.csslintrc && cd bower_components/bootstrap && grunt",
+    "cleanweb": "rm -rf out",
+    "prebuildweb": "akasharender copy-assets config-web.js",
+    "buildweb": "akasharender render config-web.js",
+    "preview": "cd out && ../node_modules/.bin/hostr"
+  },
+  "author": "David Herron <david@davidherron.com>",
+  "license": "ISC",
+  "dependencies": {
+    "akashacms-base": "akashacms/akashacms-base#akasharender",
+    "akashacms-footnotes": "akashacms/akashacms-footnotes#akasharender",
+    "akashacms-theme-bootstrap": "akashacms/akashacms-theme-bootstrap#akasharender",
+    "akasharender": ">=0.5",
+    "akasharender-epub": "akashacms/akasharender-epub",
+    "bower": "^1.7.9",
+    "debug": "^2.2.0",
+    "epubtools": "^0.1.6",
+    "hostr": "^2.3.5",
+    "mahabhuta": ">=0.5",
+    "epub-website": "../../epub-website"
+  }
+}

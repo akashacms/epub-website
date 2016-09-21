@@ -1,0 +1,23 @@
+<div <%
+        if (divclass) {
+            %> class="<%= divclass %>" <%
+        }
+        if (divid) {
+            %> id="<%= divid %>" <%
+        } %>>
+    <% if (bookTitle) { %><strong><%= bookTitle %></strong><br/><% } %>
+    <% if (bookSubTitle) { %><strong><%= bookSubTitle %></strong><br/><% } %>
+    <% if (authors) { %>By <%= authors %><br/><% } %>
+    <% if (published && language) { %>Published <%= published %>, <%= language %><% } %>
+    <% if (source) {
+        %><br/><strong>Source</strong> <a href="<%= source %>"><%= source %></a><%
+    } %>
+    <!-- % if (typeof downloadURL !== 'undefined' && downloadURL) {
+        % ><br/>
+        <button id="download-button" class="btn btn-default"
+            data-download-url="< %= downloadURL % >"
+            type="button" data-toggle="modal" data-target="#donationModal">
+                Download < %= downloadTitle % >
+        </button>< %
+    } % -->
+</div>

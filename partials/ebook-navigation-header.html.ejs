@@ -1,0 +1,38 @@
+<%
+if (typeof divclass === 'undefined') {
+    divclass = "epub-website-ebook-navigation-header";
+} else {
+    divclass += " epub-website-ebook-navigation-header";
+}
+%><div class="<%= divclass %>" <% if (divid)    { %> id="<%= divid %>" <% } %> >
+
+<div class="epub-website-ebook-logo-area">
+<div class="btn-group">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+    <%= tocLabel %>
+    <span class="caret"></span>
+  </button>
+  <%- tochtml %>
+</div>
+</div>
+
+<div class="epub-website-ebook-chapter-area">
+<a href="<%= prevhref %>">
+    <span class="epub-website-ebook-chevron-left glyphicon glyphicon-chevron-left" aria-hidden="true" style=""></span>
+</a>
+
+<h1 class="panel-title" align="center" style=""><%
+    if (typeof sectionTitle !== 'undefined' && sectionTitle) {
+        %><%= sectionTitle %><%
+    } else {
+        %><%= title %><%
+    }
+%></h1>
+
+<a href="<%= nexthref %>">
+    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="display: inline"></span>
+</a>
+</div>
+
+</div>
