@@ -37,6 +37,7 @@ class EBookPageHeader extends mahabhuta.CustomElement {
         .then(document => {
             if (typeof logoWidth === 'undefined' || logoWidth === '')   logoWidth  = document.metadata.logoWidth;
             if (typeof logoHeight === 'undefined' || logoHeight === '') logoHeight = document.metadata.logoHeight;
+            if (typeof headerHeight === 'undefined' || headerHeight === '') headerHeight = document.metadata.headerHeight;
             // console.log(`ebook-page-header ${logoWidth} ${logoHeight} ${bookHomeURL} ${util.inspect(document.metadata)}`);
             return akasha.partial(metadata.config, template, {
                 divclass,
