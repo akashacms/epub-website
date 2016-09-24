@@ -4,7 +4,7 @@ if (typeof divclass === 'undefined') {
 } else {
     divclass += " epub-website-ebook-navigation-header";
 }
-%><div class="<%= divclass %>" <% if (divid)    { %> id="<%= divid %>" <% } %> >
+%><div class="<%= divclass %>" <% if (typeof divid !== 'undefined') { %> id="<%= divid %>" <% } %> >
 
 <div class="epub-website-ebook-logo-area">
 <div class="btn-group">

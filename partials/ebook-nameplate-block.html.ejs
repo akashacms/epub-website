@@ -1,10 +1,6 @@
 <div <%
-        if (divclass) {
-            %> class="<%= divclass %>" <%
-        }
-        if (divid) {
-            %> id="<%= divid %>" <%
-        } %>>
+        if (typeof divclass !== 'undefined') { %> class="<%= divclass %>" <% }
+        if (typeof divid !== 'undefined') {    %> id="<%= divid %>" <% } %>>
     <% if (bookTitle) { %><strong><%= bookTitle %></strong><br/><% } %>
     <% if (bookSubTitle) { %><strong><%= bookSubTitle %></strong><br/><% } %>
     <% if (authors) { %>By <%= authors %><br/><% } %>
