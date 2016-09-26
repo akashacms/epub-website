@@ -100,7 +100,7 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
             // console.log(`ebook-table-of-contents ${booktoc} ${contents}`);
 
             var $toc = cheerio.load(contents);
-            $toc('nav ol').addClass('dropdown-menu');
+            $toc('nav > ol').addClass('dropdown-menu');
 
             var readingOrder = [];
 
@@ -143,7 +143,7 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
             return akasha.partial(metadata.config, template, {
                 divclass,
                 divid,
-                tochtml: $toc.html('nav ol'),
+                tochtml: $toc.html('nav > ol'),
                 tocLabel,
                 sectionTitle: metadata.sectionTitle,
                 title: metadata.title,
