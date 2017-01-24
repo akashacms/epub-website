@@ -5,6 +5,8 @@ const akasha    = require('akasharender');
 const mahabhuta = require('mahabhuta');
 const cheerio   = require('cheerio');
 const util      = require('util');
+const fs        = require('fs-extra-promise');
+const path      = require('path');
 
 const log   = require('debug')('epub-website:mahabhuta');
 const error = require('debug')('epub-website:mahabhuta');
@@ -42,6 +44,8 @@ class EBookPageHeader extends mahabhuta.CustomElement {
             return akasha.partial(metadata.config, template, {
                 divclass,
                 divid,
+                siteLogoImage: metadata.siteLogoImage,
+                siteLogoWidth: metadata.siteLogoWidth,
                 logoImage: document.metadata.logoImage,
                 bookHomeURL,
                 logoWidth, logoHeight,
@@ -90,7 +94,7 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
                 throw new Error("Strange foundDir for bookHomeURL="+ bookHomeURL +' '+ util.inspect(found));
             }
 
-            return akasha.readFile(foundDir, found.foundPathWithinDir);
+            return fs.readFileAsync(path.join(foundDir, found.foundPathWithinDir), 'utf8');
         })
         .then(_contents => {
             contents = _contents;

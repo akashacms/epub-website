@@ -1,6 +1,6 @@
 {
   "name": "epub-website",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tools to generate a website from AkashaEPUB sources",
   "main": "index.js",
   "author": "David Herron <david@davidherron.com>",
@@ -9,6 +9,7 @@
     "akasharender": ">=0.5",
     "cheerio": ">=0.19.x",
     "debug": "^2.2.0",
-    "mahabhuta": ">=0.5"
+    "mahabhuta": ">=0.5",
+    "fs-extra-promise": "*"
   }
 }
