@@ -34,7 +34,10 @@
         if (typeof divclass !== 'undefined') { %> class="<%= divclass %>" <% }
         if (typeof divid !== 'undefined') {    %> id="<%= divid %>" <% } %>  >
   <table border="0"><tr>
+      <% if (typeof logoImage !== "undefined"
+          || (typeof noLogoImage !== "undefined" && noLogoImage === "true")) { %>
       <td class="epub-website-ebook-masthead-logo"><a href="<%= bookHomeURL %>"><img src="<%= logoImage %>" /></a></td>
+      <% } %>
       <td class="epub-website-ebook-masthead-title">
           <% if (typeof bookTitle !== "undefined") {
              %><a href="<%= bookHomeURL %>"><h2 align="center"><%= bookTitle %></a></h2><%

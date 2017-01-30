@@ -7,6 +7,7 @@ const cheerio   = require('cheerio');
 const util      = require('util');
 const fs        = require('fs-extra-promise');
 const path      = require('path');
+const relative  = require('relative');
 
 const log   = require('debug')('epub-website:mahabhuta');
 const error = require('debug')('epub-website:mahabhuta');
@@ -104,7 +105,55 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
             // console.log(`ebook-table-of-contents ${booktoc} ${contents}`);
 
             var $toc = cheerio.load(contents);
+
+            // Add .dropdown-menu so we can use Bootstrap dropdowns
             $toc('nav > ol').addClass('dropdown-menu');
+
+            // In this segment we fix the TableOfContents navigation elements
+            // to have relative href's correctly referencing the file.  That is,
+            // in the TOC as it appears in toc.html, the href's must be relative
+            // from toc.html.  That's fine if the content files are all in the
+            // same directory as toc.html.  But it's necessary to support content
+            // in subdirectories.  Those files must have a relative path to the
+            // other files in their TOC elements.
+            //
+            // For a book stored in /ev-charging
+            //
+            // In toc.html you'll have relative paths like this:
+            //       range-confidence/chap2-range-confidence.html
+            //
+            // That path is to be interpreted within the eBook.  Hence the TOC
+            // which appears in range-confidence/chap1/1-introduction.html must
+            // have relative paths to the other files, for example:
+            //       ../../range-confidence/chap2-range-confidence.html
+            //
+            // That's what the following computes.
+
+            // Determine the path prefix of the toc.html
+            var bookHomePath = path.dirname(bookHomeURL.substring(1));
+            if (bookHomePath === '.') bookHomePath = '';
+            // Then trim that off from the file being considered, giving us
+            // the path of that file within the eBook directory.  That makes
+            // the path comparable to the paths in toc.html.
+            var docPathInEbook =
+                bookHomePath.length > 0
+                ? metadata.document.relrender.substring(bookHomePath.length + 1)
+                : metadata.document.relrender;
+
+            $toc('nav ol li a').each((i, elem) => {
+                let tochref = $toc(elem).attr('href');
+                // compute the relative path
+                let relativeHref = relative(metadata.document.relrender, path.join(bookHomePath, tochref)); // relative(docPathInEbook, tochref);
+                /* if (docPathInEbook.indexOf('/') < 0) {
+                    relativeHref = tochref;
+                } else if (path.dirname(docPathInEbook) === path.dirname(tochref)) {
+                    relativeHref = path.basename(tochref);
+                } else {
+                    relativeHref = path.relative(docPathInEbook, tochref);
+                } */
+                $toc(elem).attr('href', relativeHref);
+                // console.log(`ebook-table-of-contents bookHomeURL ${bookHomeURL} relpath ${metadata.document.relpath} relrender ${metadata.document.relrender} tochref ${tochref} bookHomePath ${bookHomePath} bookHomeTocHref ${path.join(bookHomePath, tochref)} docPathInEbook ${docPathInEbook} relativeHref ${relativeHref}`);
+            });
 
             var readingOrder = [];
 
@@ -144,6 +193,8 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
             // Determine PREV and NEXT
             // Add those to the object passed below
 
+            // console.log(`EBookNavigationHeader for ${metadata.document.path} tochtml ${$toc.html('nav > ol')}`);
+
             return akasha.partial(metadata.config, template, {
                 divclass,
                 divid,
@@ -151,10 +202,10 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
                 tocLabel,
                 sectionTitle: metadata.sectionTitle,
                 title: metadata.title,
-                prevhref: readingOrder[PREVindex].href,
-                prevtitle: readingOrder[PREVindex].title,
-                nexthref: readingOrder[NEXTindex].href,
-                nexttitle: readingOrder[NEXTindex].title,
+                prevhref: readingOrder[PREVindex] ? readingOrder[PREVindex].href : "",
+                prevtitle: readingOrder[PREVindex] ? readingOrder[PREVindex].title : "",
+                nexthref: readingOrder[NEXTindex] ? readingOrder[NEXTindex].href : "",
+                nexttitle: readingOrder[NEXTindex] ? readingOrder[NEXTindex].title : "",
                 logoImage: document.metadata.logoImage,
                 bookHomeURL,
                 logoWidth: document.metadata.logoWidth,
