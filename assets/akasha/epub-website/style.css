@@ -38,12 +38,12 @@
 
 .epub-website-ebook-navigation-header .epub-website-ebook-logo-area {
 	float: left;
-	height: 40px;
+	min-height: 40px;
 }
 
 .epub-website-ebook-navigation-header .epub-website-ebook-chapter-area {
 	vertical-align: middle;
-	height: 40px;
+	min-height: 40px;
 }
 
 .epub-website-ebook-navigation-header .epub-website-ebook-chapter-area h1 {
