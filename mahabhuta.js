@@ -143,14 +143,9 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
             $toc('nav ol li a').each((i, elem) => {
                 let tochref = $toc(elem).attr('href');
                 // compute the relative path
-                let relativeHref = relative(metadata.document.relrender, path.join(bookHomePath, tochref)); // relative(docPathInEbook, tochref);
-                /* if (docPathInEbook.indexOf('/') < 0) {
-                    relativeHref = tochref;
-                } else if (path.dirname(docPathInEbook) === path.dirname(tochref)) {
-                    relativeHref = path.basename(tochref);
-                } else {
-                    relativeHref = path.relative(docPathInEbook, tochref);
-                } */
+                // Using absolutized paths computes the correct relative path
+                let relativeHref = relative('/'+ metadata.document.renderTo, '/'+ path.join(bookHomePath, tochref)); // relative(docPathInEbook, tochref);
+                // console.log(`EBookNavigationHeader relative ${util.inspect(metadata.document)} ${metadata.document.relrender} ${path.join(bookHomePath, tochref)} ==> ${relativeHref}`);
                 $toc(elem).attr('href', relativeHref);
                 // console.log(`ebook-table-of-contents bookHomeURL ${bookHomeURL} relpath ${metadata.document.relpath} relrender ${metadata.document.relrender} tochref ${tochref} bookHomePath ${bookHomePath} bookHomeTocHref ${path.join(bookHomePath, tochref)} docPathInEbook ${docPathInEbook} relativeHref ${relativeHref}`);
             });
