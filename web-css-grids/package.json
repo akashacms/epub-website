@@ -1,0 +1,36 @@
+{
+  "author": {
+    "name": "David Herron",
+    "email": "david@davidherron.com",
+    "url": "http://davidherron.com"
+  },
+  "name": "akashacms-skeleton",
+  "description": "AkashaCMS skeleton website",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/akashacms/akashacms-skeleton.git"
+  },
+  "scripts": {
+    "prebuild": "akasharender copy-assets config.js",
+    "build": "akasharender render config.js",
+    "deploy": "cd out && rsync --archive --delete --verbose ./ user-name@server-host.com:path-to-docroot/ ",
+    "preview": "cd out && ../node_modules/.bin/hostr",
+    "minify": "html-minifier --collapse-whitespace --conservative-collapse --html5 --keep-closing-slash --preserve-line-breaks --remove-comments --file-ext html  --input-dir out --output-dir out"
+  },
+  "dependencies": {
+    "akashacms-base": ">=0.6",
+    "akashacms-blog-podcast": ">=0.6",
+    "akashacms-booknav": ">=0.6",
+    "akashacms-breadcrumbs": ">=0.6",
+    "akashacms-embeddables": ">=0.6",
+    "akashacms-tagged-content": ">=0.6",
+    "akashacms-theme-bootstrap": ">=0.6",
+    "epub-skeleton": "akashacms/epub-skeleton",
+    "mahabhuta": ">=0.6.3",
+    "akasharender": ">=0.5.14",
+    "bootstrap": "^3.3.7",
+    "hostr": "^2.x",
+    "html-minifier": "^3.1.1",
+    "jquery": "^3.1.1"
+  }
+}
