@@ -5,7 +5,7 @@ const akasha    = require('akasharender');
 const mahabhuta = require('mahabhuta');
 const cheerio   = require('cheerio');
 const util      = require('util');
-const fs        = require('fs-extra-promise');
+const fs        = require('fs-extra');
 const path      = require('path');
 const relative  = require('relative');
 
@@ -95,7 +95,7 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
                 throw new Error("Strange foundDir for bookHomeURL="+ bookHomeURL +' '+ util.inspect(found));
             }
 
-            return fs.readFileAsync(path.join(foundDir, found.foundPathWithinDir), 'utf8');
+            return fs.readFile(path.join(foundDir, found.foundPathWithinDir), 'utf8');
         })
         .then(_contents => {
             contents = _contents;
