@@ -80,7 +80,7 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
         return akasha.findRendersTo(metadata.config.documentDirs, metadata.bookHomeURL)
         .then(_found => {
 
-            // console.log(`ebook-table-of-contents ${booktoc} findRendersTo ==> ${util.inspect(_found)}`);
+            // console.log(`ebook-navigation-header ${metadata.bookHomeURL} findRendersTo ==> ${util.inspect(_found)}`);
 
             if (!_found) {
                 throw new Error("Did not find document for bookHomeURL="+ metadata.bookHomeURL);
@@ -95,6 +95,8 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
                 throw new Error("Strange foundDir for bookHomeURL="+ bookHomeURL +' '+ util.inspect(found));
             }
 
+            // console.log(`ebook-navigation-header reading file ${path.join(foundDir, found.foundPathWithinDir)} ... ${foundDir} ... ${found.foundPathWithinDir}`);
+
             return fs.readFile(path.join(foundDir, found.foundPathWithinDir), 'utf8');
         })
         .then(_contents => {
@@ -102,7 +104,7 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
             return akasha.readDocument(metadata.config, bookHomeURL);
         })
         .then(document => {
-            // console.log(`ebook-table-of-contents ${booktoc} ${contents}`);
+            // console.log(`ebook-navigation-header ${booktoc} ${contents}`);
 
             var $toc = cheerio.load(contents);
 
@@ -209,6 +211,10 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
                 bookAuthor: document.metadata.bookAuthor
             });
         });
+        /* .catch(err => {
+            console.error(`ebook-navigation-header CAUGHT ERR ${err.stack}`);
+            throw err;
+        }); */
 
     }
 }
