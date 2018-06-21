@@ -3,7 +3,6 @@
 
 
 const akasha    = require('akasharender');
-const mahabhuta = require('mahabhuta');
 const path      = require('path');
 
 const log   = require('debug')('epub-website:main');

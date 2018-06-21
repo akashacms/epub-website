@@ -2,7 +2,6 @@
 'use strict';
 
 const akasha    = require('akasharender');
-const mahabhuta = require('mahabhuta');
 const cheerio   = require('cheerio');
 const util      = require('util');
 const fs        = require('fs-extra');
@@ -12,7 +11,7 @@ const relative  = require('relative');
 const log   = require('debug')('epub-website:mahabhuta');
 const error = require('debug')('epub-website:mahabhuta');
 
-module.exports = new mahabhuta.MahafuncArray("epub-website", {});
+module.exports = new akasha.mahabhuta.MahafuncArray("epub-website", {});
 
 /**
  * Generate a page header suitable as a Masthead for a book.  Each document page
@@ -22,7 +21,7 @@ module.exports = new mahabhuta.MahafuncArray("epub-website", {});
  *
  * THAT file is to then contain metadata describing the book.
  */
-class EBookPageHeader extends mahabhuta.CustomElement {
+class EBookPageHeader extends akasha.mahabhuta.CustomElement {
 	get elementName() { return "ebook-page-header"; }
 	process($element, metadata, dirty) {
         var bookHomeURL = metadata.bookHomeURL;
@@ -60,7 +59,7 @@ class EBookPageHeader extends mahabhuta.CustomElement {
 }
 module.exports.addMahafunc(new EBookPageHeader());
 
-class EBookNavigationHeader extends mahabhuta.CustomElement {
+class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
    get elementName() { return "ebook-navigation-header"; }
    process($element, metadata, dirty) {
 
@@ -220,7 +219,7 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
 }
 module.exports.addMahafunc(new EBookNavigationHeader());
 
-class EBookNameplateBlock extends mahabhuta.CustomElement {
+class EBookNameplateBlock extends akasha.mahabhuta.CustomElement {
    get elementName() { return "ebook-nameplate-block"; }
    process($element, metadata, dirty) {
        var bookHomeURL = metadata.bookHomeURL;
