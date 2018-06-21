@@ -9,7 +9,6 @@
     "akasharender": ">=0.5",
     "cheerio": ">=0.19.x",
     "debug": "^2.2.0",
-    "mahabhuta": ">=0.5",
     "fs-extra": ">=4.0.1",
     "relative": "*"
   }
