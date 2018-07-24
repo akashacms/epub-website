@@ -6,7 +6,7 @@
   "author": "David Herron <david@davidherron.com>",
   "license": "ISC",
   "dependencies": {
-    "akasharender": ">=0.5",
+    "akasharender": ">=0.6",
     "cheerio": ">=0.19.x",
     "debug": "^2.2.0",
     "fs-extra": ">=4.0.1",
