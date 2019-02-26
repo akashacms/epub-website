@@ -112,6 +112,10 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
             $toc('nav > ol').attr('aria-labelledby', 'dropdownMenuButton');
             $toc('nav > ol > li').addClass('dropdown-item');
 
+            $toc('nav > ol li a').attr('type', 'button');
+            $toc('nav > ol li a').addClass('btn');
+            $toc('nav > ol li a').addClass('btn-link');
+
             // In this segment we fix the TableOfContents navigation elements
             // to have relative href's correctly referencing the file.  That is,
             // in the TOC as it appears in toc.html, the href's must be relative
