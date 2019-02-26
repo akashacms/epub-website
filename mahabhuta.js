@@ -109,6 +109,8 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
 
             // Add .dropdown-menu so we can use Bootstrap dropdowns
             $toc('nav > ol').addClass('dropdown-menu');
+            $toc('nav > ol').attr('aria-labelledby', 'dropdownMenuButton');
+            $toc('nav > ol > li').addClass('dropdown-item');
 
             // In this segment we fix the TableOfContents navigation elements
             // to have relative href's correctly referencing the file.  That is,
