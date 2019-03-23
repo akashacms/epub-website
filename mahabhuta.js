@@ -76,7 +76,7 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
         var found;
         var foundDir;
         var contents;
-        return akasha.findRendersTo(metadata.config.documentDirs, metadata.bookHomeURL)
+        return akasha.findRendersTo(metadata.config, metadata.bookHomeURL)
         .then(_found => {
 
             // console.log(`ebook-navigation-header ${metadata.bookHomeURL} findRendersTo ==> ${util.inspect(_found)}`);
