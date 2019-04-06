@@ -1,14 +1,13 @@
 {
   "name": "epub-website",
-  "version": "0.2.1",
-  "description": "Tools to generate a website from AkashaEPUB sources",
+  "version": "0.2.2",
+  "description": "Tools to generate a website from an AkashaEPUB source document",
   "main": "index.js",
   "author": "David Herron <david@davidherron.com>",
   "license": "ISC",
   "dependencies": {
     "akasharender": ">=0.6",
     "cheerio": ">=0.19.x",
-    "debug": "^2.2.0",
     "fs-extra": ">=4.0.1",
     "relative": "*"
   }

@@ -1,12 +1,6 @@
 
-'use strict';
-
-
 const akasha    = require('akasharender');
 const path      = require('path');
-
-const log   = require('debug')('epub-website:main');
-const error = require('debug')('epub-website:main');
 
 
 module.exports = class EPUBWebsitePlugin extends akasha.Plugin {
