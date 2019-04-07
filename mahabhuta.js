@@ -30,9 +30,9 @@ class EBookPageHeader extends akasha.mahabhuta.CustomElement {
         var headerHeight = $element.attr('header-height');
         var logoWidth  = $element.attr('logo-width');
         var logoHeight = $element.attr('logo-height');
-        console.log(`EBookPageHeader ebook-page header readDocument bookHomeURL ${bookHomeURL}`);
+        // console.log(`EBookPageHeader ebook-page header readDocument bookHomeURL ${bookHomeURL}`);
         let document = await akasha.readDocument(metadata.config, bookHomeURL);
-        console.log(`EBookPageHeader ebook-page header found document for bookHomeURL ${bookHomeURL} `, document);
+        // console.log(`EBookPageHeader ebook-page header found document for bookHomeURL ${bookHomeURL} `, document);
         if (typeof logoWidth === 'undefined' || logoWidth === '')   logoWidth  = document.metadata.logoWidth;
         if (typeof logoHeight === 'undefined' || logoHeight === '') logoHeight = document.metadata.logoHeight;
         if (typeof headerHeight === 'undefined' || headerHeight === '') headerHeight = document.metadata.headerHeight;
@@ -70,7 +70,7 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
         if (!tocLabel) tocLabel = "Table of Contents";
         var foundDir;
         var found = await akasha.findRendersTo(metadata.config, metadata.bookHomeURL);
-        // console.log(`ebook-navigation-header ${metadata.bookHomeURL} findRendersTo ==> ${util.inspect(_found)}`);
+        // console.log(`ebook-navigation-header ${metadata.bookHomeURL} findRendersTo ==> ${util.inspect(found)}`);
 
         if (!found) {
             throw new Error("Did not find document for bookHomeURL="+ metadata.bookHomeURL);
@@ -87,7 +87,8 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
         // console.log(`ebook-navigation-header reading file ${path.join(foundDir, found.foundPathWithinDir)} ... ${foundDir} ... ${found.foundPathWithinDir}`);
 
         let contents = await fs.readFile(path.join(foundDir, found.foundPathWithinDir), 'utf8');
-        let document = akasha.readDocument(metadata.config, bookHomeURL);
+        let document = await akasha.readDocument(metadata.config, bookHomeURL);
+        // console.log(`ebook-navigation-header found document for ${bookHomeURL} - ${util.inspect(document)}`);
         // console.log(`ebook-navigation-header ${booktoc} ${contents}`);
 
         var $toc = cheerio.load(contents);
@@ -193,7 +194,9 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
             prevtitle: readingOrder[PREVindex] ? readingOrder[PREVindex].title : "",
             nexthref: readingOrder[NEXTindex] ? readingOrder[NEXTindex].href : "",
             nexttitle: readingOrder[NEXTindex] ? readingOrder[NEXTindex].title : "",
-            logoImage: document.metadata.logoImage,
+            logoImage: typeof document.metadata !== 'undefined' ? document.metadata.logoImage : undefined,
+            noLogoImage: typeof document.metadata === 'undefined' || typeof document.metadata.logoImage === 'undefined' || !document.metadata.logoImage
+                            ? "true" : "false",
             bookHomeURL,
             logoWidth: document.metadata.logoWidth,
             bookTitle: document.metadata.bookTitle,
