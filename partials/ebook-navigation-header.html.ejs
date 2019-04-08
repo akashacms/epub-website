@@ -6,6 +6,7 @@ if (typeof divclass === 'undefined') {
 }
 %><div class="<%= divclass %>" <% if (typeof divid !== 'undefined') { %> id="<%= divid %>" <% } %> >
 
+<% if (showtoc) { %>
 <div class="epub-website-ebook-logo-area">
 <div class="btn-group">
   <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -16,10 +17,14 @@ if (typeof divclass === 'undefined') {
   <%- tochtml %>
 </div>
 </div>
+<% } %>
 
 <div class="epub-website-ebook-chapter-area">
 <a href="<%= prevhref %>">
-    <span class="epub-website-ebook-chevron-left glyphicon glyphicon-chevron-left" aria-hidden="true" style=""></span>
+    <span class="fas fa-chevron-left" aria-hidden="true" style=""></span>
+    <span class="fas fa-chevron-left" aria-hidden="true" style=""></span>
+    <span class="fas fa-chevron-left" aria-hidden="true" style=""></span>
+    <span class="fas fa-chevron-left" aria-hidden="true" style=""></span>
 </a>
 
 <h1 class="panel-title" align="center" style=""><%
@@ -31,7 +36,10 @@ if (typeof divclass === 'undefined') {
 %></h1>
 
 <a href="<%= nexthref %>">
-    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true" style="display: inline"></span>
+    <span class="fas fa-chevron-right" aria-hidden="true" style="display: inline"></span>
+    <span class="fas fa-chevron-right" aria-hidden="true" style="display: inline"></span>
+    <span class="fas fa-chevron-right" aria-hidden="true" style="display: inline"></span>
+    <span class="fas fa-chevron-right" aria-hidden="true" style="display: inline"></span>
 </a>
 </div>
 

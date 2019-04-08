@@ -6,8 +6,6 @@ const fs        = require('fs-extra');
 const path      = require('path');
 const relative  = require('relative');
 
-module.exports = new akasha.mahabhuta.MahafuncArray("epub-website", {});
-
 /**
  * Generate a page header suitable as a Masthead for a book.  Each document page
  * that's part of the eBook must have a bookHomeURL entry in its metadata.  That
@@ -52,7 +50,75 @@ class EBookPageHeader extends akasha.mahabhuta.CustomElement {
         });
 	}
 }
-module.exports.addMahafunc(new EBookPageHeader());
+
+class EBookToCList extends akasha.mahabhuta.CustomElement {
+    get elementName() { return "ebook-toc-menu"; }
+    async process($element, metadata, dirty) {
+        var bookHomeURL = metadata.bookHomeURL;
+        if (!bookHomeURL) {
+            return Promise.reject("No bookHomeURL in metadata");
+        }
+        var template = $element.attr('template');
+        if (!template) template = "ebook-toc-menu.html.ejs";
+        var olclasses = $element.data('classes');
+        var olid    = $element.data('id');
+        let olliclasses = $element.data('olliclasses');
+        let anchortype = $element.data('anchortype');
+        let anchorclasses = $element.data('anchorclasses');
+        var foundDir;
+        var found = await akasha.findRendersTo(metadata.config, metadata.bookHomeURL);
+        if (!found) {
+            throw new Error("Did not find document for bookHomeURL="+ metadata.bookHomeURL);
+        }
+
+        if (typeof found.foundDir === 'string') {
+            foundDir = found.foundDir;
+        } else if (found.foundDir && found.foundDir.src) {
+            foundDir = found.foundDir.src;
+        } else {
+            throw new Error("Strange foundDir for bookHomeURL="+ bookHomeURL +' '+ util.inspect(found));
+        }
+        let contents = await fs.readFile(path.join(foundDir, found.foundPathWithinDir), 'utf8');
+        // let document = await akasha.readDocument(metadata.config, bookHomeURL);
+        var $toc = cheerio.load(contents);
+
+        if (olclasses && Array.isArray(olclasses)) {
+            for (let olclass of olclasses) {
+                $toc('nav > ol').addClass(olclass);
+            }
+        }
+        if (olid && olid !== "") $toc('nav > ol').attr('id', olid);
+        if (olliclasses && Array.isArray(olliclasses)) {
+            for (let olliclass of olliclasses) {
+                $toc('nav > ol > li').addClass(olliclass);
+            }
+        }
+
+        if (anchortype && anchortype !== "") $toc('nav > ol li a').attr('type', anchortype);
+        if (anchorclasses && Array.isArray(anchorclasses)) {
+            for (let anchorclass of anchorclasses) {
+                $toc('nav > ol li a').addClass(anchorclass);
+            }
+        }
+
+        // Determine the path prefix of the toc.html
+        var bookHomePath = path.dirname(bookHomeURL.substring(1));
+        if (bookHomePath === '.') bookHomePath = '';
+
+        $toc('nav ol li a').each((i, elem) => {
+            let tochref = $toc(elem).attr('href');
+            // compute the relative path
+            // Using absolutized paths computes the correct relative path
+            let relativeHref = relative('/'+ metadata.document.renderTo, '/'+ path.join(bookHomePath, tochref)); // relative(docPathInEbook, tochref);
+            // console.log(`EBookNavigationHeader relative ${util.inspect(metadata.document)} ${metadata.document.relrender} ${path.join(bookHomePath, tochref)} ==> ${relativeHref}`);
+            $toc(elem).attr('href', relativeHref);
+            // console.log(`ebook-table-of-contents bookHomeURL ${bookHomeURL} relpath ${metadata.document.relpath} relrender ${metadata.document.relrender} tochref ${tochref} bookHomePath ${bookHomePath} bookHomeTocHref ${path.join(bookHomePath, tochref)} docPathInEbook ${docPathInEbook} relativeHref ${relativeHref}`);
+        });
+
+        let tochtml = $toc.html('nav > ol');
+        return tochtml;
+    }
+}
 
 class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
     get elementName() { return "ebook-navigation-header"; }
@@ -66,6 +132,7 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
         if (!template) template = "ebook-navigation-header.html.ejs";
         var divclass = $element.attr('class');
         var divid    = $element.attr('id');
+        var showtoc  = $element.attr('showtoc');
         var tocLabel = $element.attr('toc-label');
         if (!tocLabel) tocLabel = "Table of Contents";
         var foundDir;
@@ -93,14 +160,16 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
 
         var $toc = cheerio.load(contents);
 
-        // Add .dropdown-menu so we can use Bootstrap dropdowns
-        $toc('nav > ol').addClass('dropdown-menu');
-        $toc('nav > ol').attr('aria-labelledby', 'dropdownMenuButton');
-        $toc('nav > ol > li').addClass('dropdown-item');
+        if (typeof showtoc !== 'undefined' && showtoc === 'true') {
+            // Add .dropdown-menu so we can use Bootstrap dropdowns
+            $toc('nav > ol').addClass('dropdown-menu');
+            $toc('nav > ol').attr('aria-labelledby', 'dropdownMenuButton');
+            $toc('nav > ol > li').addClass('dropdown-item');
 
-        $toc('nav > ol li a').attr('type', 'button');
-        $toc('nav > ol li a').addClass('btn');
-        $toc('nav > ol li a').addClass('btn-link');
+            $toc('nav > ol li a').attr('type', 'button');
+            $toc('nav > ol li a').addClass('btn');
+            $toc('nav > ol li a').addClass('btn-link');
+        }
 
         // In this segment we fix the TableOfContents navigation elements
         // to have relative href's correctly referencing the file.  That is,
@@ -186,7 +255,8 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
         return akasha.partial(metadata.config, template, {
             divclass,
             divid,
-            tochtml: $toc.html('nav > ol'),
+            tochtml: (typeof showtoc !== 'undefined' && showtoc === 'true') ? $toc.html('nav > ol') : "",
+            showtoc: (typeof showtoc !== 'undefined' && showtoc === 'true'),
             tocLabel,
             sectionTitle: metadata.sectionTitle,
             title: metadata.title,
@@ -205,7 +275,6 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
         });
     }
 }
-module.exports.addMahafunc(new EBookNavigationHeader());
 
 class EBookNameplateBlock extends akasha.mahabhuta.CustomElement {
     get elementName() { return "ebook-nameplate-block"; }
@@ -232,4 +301,14 @@ class EBookNameplateBlock extends akasha.mahabhuta.CustomElement {
         });
     }
 }
-module.exports.addMahafunc(new EBookNameplateBlock());
+
+
+module.exports.mahabhutaArray = function(options) {
+    let ret = new akasha.mahabhuta.MahafuncArray("epub-website", options);
+    ret.addMahafunc(new EBookPageHeader());
+    ret.addMahafunc(new EBookToCList());
+    ret.addMahafunc(new EBookNavigationHeader());
+    ret.addMahafunc(new EBookNameplateBlock());
+    return ret;
+}
+
