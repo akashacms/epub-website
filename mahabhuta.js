@@ -62,6 +62,7 @@ class EBookToCList extends akasha.mahabhuta.CustomElement {
         if (!template) template = "ebook-toc-menu.html.ejs";
         let olclasses = $element.data('classes');
         let olid    = $element.data('id');
+        let style   = $element.data('style');
         let ollabeledby = $element.data('ollabeledby');
         let olliclasses = $element.data('olliclasses');
         let anchortype = $element.data('anchortype');
@@ -95,6 +96,7 @@ class EBookToCList extends akasha.mahabhuta.CustomElement {
             }
         }
         if (ollabeledby && ollabeledby !== "") $toc('nav > ol').attr('aria-labelledby', ollabeledby);
+        if (style && style !== "") $toc('nav > ol').attr('style', style);
 
         if (anchortype && anchortype !== "") $toc('nav > ol li a').attr('type', anchortype);
         if (anchorclasses && Array.isArray(anchorclasses)) {
