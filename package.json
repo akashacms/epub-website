@@ -1,6 +1,6 @@
 {
   "name": "epub-website",
-  "version": "0.2.2",
+  "version": "0.7.0",
   "description": "Tools to generate a website from an AkashaEPUB source document",
   "main": "index.js",
   "author": "David Herron <david@davidherron.com>",
