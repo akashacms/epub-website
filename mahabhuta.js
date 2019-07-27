@@ -47,7 +47,8 @@ class EBookPageHeader extends akasha.mahabhuta.CustomElement {
             bookTitle: document.metadata.bookTitle,
             bookSubTitle: document.metadata.bookSubTitle,
             bookAuthor: document.metadata.bookAuthor,
-            headerHeight
+            headerHeight,
+            publicationDate: document.metadata.publicationDate
         });
 	}
 }
