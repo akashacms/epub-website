@@ -8,6 +8,29 @@ const fs        = require('fs-extra');
 const path      = require('path');
 const relative  = require('relative');
 
+const readTOC = async (config, bookHomeURL) => {
+
+    var foundDir;
+
+    var found = await akasha.findRendersTo(config, bookHomeURL);
+    if (!found) {
+        throw new Error("Did not find document for bookHomeURL="+ bookHomeURL);
+    }
+
+    if (typeof found.foundDir === 'string') {
+        foundDir = found.foundDir;
+    } else if (found.foundDir && found.foundDir.src) {
+        foundDir = found.foundDir.src;
+    } else {
+        throw new Error("Strange foundDir for bookHomeURL="+ bookHomeURL +' '+ util.inspect(found));
+    }
+
+    let contents = await fs.readFile(
+            path.join(foundDir, found.foundPathWithinDir), 'utf8');
+    var $toc = cheerio.load(contents);
+    return $toc;
+}
+
 const eBookLogoImage = ($element, metadata) => {
     let logoImage;
     var logoURLAttr  = $element.attr('logo-url');
@@ -195,24 +218,8 @@ class EBookToCList extends mahabhuta.CustomElement {
         let olliclasses = $element.data('olliclasses');
         let anchortype = $element.data('anchortype');
         let anchorclasses = $element.data('anchorclasses');
-        var foundDir;
-        var found = await akasha.findRendersTo(
-            this.array.options.config, metadata.bookHomeURL);
-        if (!found) {
-            throw new Error("Did not find document for bookHomeURL="+ metadata.bookHomeURL);
-        }
 
-        if (typeof found.foundDir === 'string') {
-            foundDir = found.foundDir;
-        } else if (found.foundDir && found.foundDir.src) {
-            foundDir = found.foundDir.src;
-        } else {
-            throw new Error("Strange foundDir for bookHomeURL="+ bookHomeURL +' '+ util.inspect(found));
-        }
-        let contents = await fs.readFile(
-            path.join(foundDir, found.foundPathWithinDir), 'utf8');
-        // let document = await akasha.readDocument(this.array.options.config, bookHomeURL);
-        var $toc = cheerio.load(contents);
+        var $toc = await readTOC(this.array.options.config, metadata.bookHomeURL);
 
         if (olclasses && Array.isArray(olclasses)) {
             for (let olclass of olclasses) {
@@ -243,7 +250,9 @@ class EBookToCList extends mahabhuta.CustomElement {
             let tochref = $toc(elem).attr('href');
             // compute the relative path
             // Using absolutized paths computes the correct relative path
-            let relativeHref = relative('/'+ metadata.document.renderTo, '/'+ path.join(bookHomePath, tochref)); // relative(docPathInEbook, tochref);
+            let relativeHref = relative(
+                '/'+ metadata.document.renderTo, 
+                '/'+ path.join(bookHomePath, tochref));
             // console.log(`EBookNavigationHeader relative ${util.inspect(metadata.document)} ${metadata.document.relrender} ${path.join(bookHomePath, tochref)} ==> ${relativeHref}`);
             $toc(elem).attr('href', relativeHref);
             // console.log(`ebook-table-of-contents bookHomeURL ${bookHomeURL} relpath ${metadata.document.relpath} relrender ${metadata.document.relrender} tochref ${tochref} bookHomePath ${bookHomePath} bookHomeTocHref ${path.join(bookHomePath, tochref)} docPathInEbook ${docPathInEbook} relativeHref ${relativeHref}`);
@@ -302,32 +311,8 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
         var showtoc  = $element.attr('showtoc');
         var tocLabel = $element.attr('toc-label');
         if (!tocLabel) tocLabel = "Table of Contents";
-        var foundDir;
-        var found = await akasha.findRendersTo(
-            this.array.options.config, metadata.bookHomeURL);
-        // console.log(`ebook-navigation-header ${metadata.bookHomeURL} findRendersTo ==> ${util.inspect(found)}`);
-
-        if (!found) {
-            throw new Error("Did not find document for bookHomeURL="+ metadata.bookHomeURL);
-        }
-
-        if (typeof found.foundDir === 'string') {
-            foundDir = found.foundDir;
-        } else if (found.foundDir && found.foundDir.src) {
-            foundDir = found.foundDir.src;
-        } else {
-            throw new Error("Strange foundDir for bookHomeURL="+ bookHomeURL +' '+ util.inspect(found));
-        }
-
-        // console.log(`ebook-navigation-header reading file ${path.join(foundDir, found.foundPathWithinDir)} ... ${foundDir} ... ${found.foundPathWithinDir}`);
-
-        let contents = await fs.readFile(
-            path.join(foundDir, found.foundPathWithinDir), 'utf8');
-        // let document = await akasha.readDocument(this.array.options.config, bookHomeURL);
-        // console.log(`ebook-navigation-header found document for ${bookHomeURL} - ${util.inspect(document)}`);
-        // console.log(`ebook-navigation-header ${booktoc} ${contents}`);
-
-        var $toc = cheerio.load(contents);
+        
+        var $toc = await readTOC(this.array.options.config, metadata.bookHomeURL);
 
         if (typeof showtoc !== 'undefined' && showtoc === 'true') {
             // Add .dropdown-menu so we can use Bootstrap dropdowns
@@ -375,7 +360,9 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
             let tochref = $toc(elem).attr('href');
             // compute the relative path
             // Using absolutized paths computes the correct relative path
-            let relativeHref = relative('/'+ metadata.document.renderTo, '/'+ path.join(bookHomePath, tochref)); // relative(docPathInEbook, tochref);
+            let relativeHref = relative(
+                '/'+ metadata.document.renderTo, 
+                '/'+ path.join(bookHomePath, tochref));
             // console.log(`EBookNavigationHeader relative ${util.inspect(metadata.document)} ${metadata.document.relrender} ${path.join(bookHomePath, tochref)} ==> ${relativeHref}`);
             $toc(elem).attr('href', relativeHref);
             // console.log(`ebook-table-of-contents bookHomeURL ${bookHomeURL} relpath ${metadata.document.relpath} relrender ${metadata.document.relrender} tochref ${tochref} bookHomePath ${bookHomePath} bookHomeTocHref ${path.join(bookHomePath, tochref)} docPathInEbook ${docPathInEbook} relativeHref ${relativeHref}`);
@@ -437,7 +424,6 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
         let bookSubTitle = eBookSubTitle($element, metadata);
         let bookAuthor = eBookAuthor($element, metadata);
 
-        // TODO Maybe use readDocument to read bookHomeURL to gather some of this?
         return akasha.partial(this.array.options.config, template, {
             divclass,
             divid,
