@@ -2,10 +2,132 @@
 const akasha    = require('akasharender');
 const mahabhuta = akasha.mahabhuta;
 const cheerio   = require('cheerio');
+const url       = require('url');
 const util      = require('util');
 const fs        = require('fs-extra');
 const path      = require('path');
 const relative  = require('relative');
+
+const eBookLogoImage = ($element, metadata) => {
+    let logoImage;
+    var logoURLAttr  = $element.attr('logo-url');
+    if (typeof logoURLAttr !== 'undefined') {
+        logoImage = logoURLAttr;
+    }
+    if (!logoImage && typeof metadata.ebook !== 'undefined') {
+        logoImage = metadata.ebook.logoImage;
+    }
+    if (!logoImage && typeof metadata.logoImage !== 'undefined') {
+        logoImage = metadata.logoImage;
+    }
+    return logoImage;
+}
+
+const eBookNoLogoImage = ($element, metadata) => {
+    // TODO how to generate true/false properly?
+    let noLogoImage;
+    var noLogoAttr  = $element.attr('logo-no');
+    if (typeof noLogoAttr !== 'undefined') {
+        noLogoImage = noLogoAttr;
+    }
+    if (!noLogoImage && typeof metadata.ebook !== 'undefined') {
+        noLogoImage = metadata.ebook.noLogoImage;
+    }
+    if (!noLogoImage && typeof metadata.noLogoImage !== 'undefined') {
+        noLogoImage = metadata.noLogoImage;
+    }
+    return noLogoImage;
+}
+
+const eBookLogoHeight = ($element, metadata) => {
+    let logoHeight;
+    var logoHeightAttr  = $element.attr('logo-height');
+    if (typeof logoHeightAttr !== 'undefined') {
+        logoHeight = logoHeightAttr;
+    }
+    if (!logoHeight && typeof metadata.ebook !== 'undefined') {
+        logoHeight = metadata.ebook.logoHeight;
+    }
+    if (!logoHeight && typeof metadata.logoHeight !== 'undefined') {
+        logoHeight = metadata.logoHeight;
+    }
+    return logoHeight;
+}
+
+const eBookLogoWidth = ($element, metadata) => {
+    let logoWidth;
+    var logoWidthAttr  = $element.attr('logo-width');
+    if (typeof logoWidthAttr !== 'undefined') {
+        logoWidth = logoWidthAttr;
+    }
+    if (!logoWidth && typeof metadata.ebook !== 'undefined') {
+        logoWidth = metadata.ebook.logoWidth;
+    }
+    if (!logoWidth && typeof metadata.logoWidth !== 'undefined') {
+        logoWidth = metadata.logoWidth;
+    }
+    return logoWidth;
+}
+
+const eBookTitle = ($element, metadata) => {
+    let bookTitle;
+    var bookTitleAttr  = $element.attr('book-title');
+    if (typeof bookTitleAttr !== 'undefined') {
+        bookTitle = bookTitleAttr;
+    }
+    if (!bookTitle && typeof metadata.ebook !== 'undefined') {
+        bookTitle = metadata.ebook.bookTitle;
+    }
+    if (!bookTitle && typeof metadata.bookTitle !== 'undefined') {
+        bookTitle = metadata.bookTitle;
+    }
+    return bookTitle;
+}
+
+const eBookSubTitle = ($element, metadata) => {
+    let bookSubTitle;
+    var bookSubTitleAttr  = $element.attr('book-sub-title');
+    if (typeof bookSubTitleAttr !== 'undefined') {
+        bookSubTitle = bookSubTitleAttr;
+    }
+    if (!bookSubTitle && typeof metadata.ebook !== 'undefined') {
+        bookSubTitle = metadata.ebook.bookSubTitle;
+    }
+    if (!bookSubTitle && typeof metadata.bookSubTitle !== 'undefined') {
+        bookSubTitle = metadata.bookSubTitle;
+    }
+    return bookSubTitle;
+}
+
+const eBookAuthor = ($element, metadata) => {
+    let bookAuthor;
+    var bookAuthorAttr  = $element.attr('book-author');
+    if (typeof bookAuthorAttr !== 'undefined') {
+        bookAuthor = bookAuthorAttr;
+    }
+    if (!bookAuthor && typeof metadata.ebook !== 'undefined') {
+        bookAuthor = metadata.ebook.bookAuthor;
+    }
+    if (!bookAuthor && typeof metadata.bookAuthor !== 'undefined') {
+        bookAuthor = metadata.bookAuthor;
+    }
+    return bookAuthor;
+}
+
+const eBookHeaderHeight = ($element, metadata) => {
+    let headerHeight;
+    var headerHeightAttr  = $element.attr('header-height');
+    if (typeof headerHeightAttr !== 'undefined') {
+        headerHeight = headerHeightAttr;
+    }
+    if (!headerHeight && typeof metadata.ebook !== 'undefined') {
+        headerHeight = metadata.ebook.headerHeight;
+    }
+    if (!headerHeight && typeof metadata.headerHeight !== 'undefined') {
+        headerHeight = metadata.headerHeight;
+    }
+    return headerHeight;
+}
 
 /**
  * Generate a page header suitable as a Masthead for a book.  Each document page
@@ -15,7 +137,7 @@ const relative  = require('relative');
  *
  * THAT file is to then contain metadata describing the book.
  */
-class EBookPageHeader extends akasha.mahabhuta.CustomElement {
+class EBookPageHeader extends mahabhuta.CustomElement {
     get elementName() { return "ebook-page-header"; }
     async process($element, metadata, dirty) {
         var bookHomeURL = metadata.bookHomeURL;
@@ -26,34 +148,38 @@ class EBookPageHeader extends akasha.mahabhuta.CustomElement {
         if (!template) template = "ebook-header.html.ejs";
         var divclass = $element.attr('class');
         var divid    = $element.attr('id');
-        var headerHeight = $element.attr('header-height');
-        var logoWidth  = $element.attr('logo-width');
-        var logoHeight = $element.attr('logo-height');
+
+        let logoImage = eBookLogoImage($element, metadata);
+        let noLogoImage = eBookNoLogoImage($element, metadata);
+        let logoHeight = eBookLogoHeight($element, metadata);
+        let logoWidth = eBookLogoWidth($element, metadata);
+        let bookTitle = eBookTitle($element, metadata);
+        let bookSubTitle = eBookSubTitle($element, metadata);
+        let bookAuthor = eBookAuthor($element, metadata);
+        let headerHeight = eBookHeaderHeight($element, metadata);
+
         // console.log(`EBookPageHeader ebook-page header readDocument bookHomeURL ${bookHomeURL}`);
-        let document = await akasha.readDocument(this.array.options.config, bookHomeURL);
+        // let document = await akasha.readDocument(this.array.options.config, bookHomeURL);
         // console.log(`EBookPageHeader ebook-page header found document for bookHomeURL ${bookHomeURL} `, document);
-        if (typeof logoWidth === 'undefined' || logoWidth === '')   logoWidth  = document.metadata.logoWidth;
-        if (typeof logoHeight === 'undefined' || logoHeight === '') logoHeight = document.metadata.logoHeight;
-        if (typeof headerHeight === 'undefined' || headerHeight === '') headerHeight = document.metadata.headerHeight;
         // console.log(`ebook-page-header ${logoWidth} ${logoHeight} ${bookHomeURL} ${util.inspect(document.metadata)}`);
         return akasha.partial(this.array.options.config, template, {
             divclass,
             divid,
+            bookHomeURL,
             siteLogoImage: metadata.siteLogoImage,
             siteLogoWidth: metadata.siteLogoWidth,
-            logoImage: document.metadata.logoImage,
-            bookHomeURL,
+            logoImage, noLogoImage,
             logoWidth, logoHeight,
-            bookTitle: document.metadata.bookTitle,
-            bookSubTitle: document.metadata.bookSubTitle,
-            bookAuthor: document.metadata.bookAuthor,
+            bookTitle,
+            bookSubTitle,
+            bookAuthor,
             headerHeight,
-            publicationDate: document.metadata.publicationDate
+            publicationDate: metadata.publicationDate
         });
 	}
 }
 
-class EBookToCList extends akasha.mahabhuta.CustomElement {
+class EBookToCList extends mahabhuta.CustomElement {
     get elementName() { return "ebook-toc-menu"; }
     async process($element, metadata, dirty) {
         var bookHomeURL = metadata.bookHomeURL;
@@ -70,7 +196,8 @@ class EBookToCList extends akasha.mahabhuta.CustomElement {
         let anchortype = $element.data('anchortype');
         let anchorclasses = $element.data('anchorclasses');
         var foundDir;
-        var found = await akasha.findRendersTo(this.array.options.config, metadata.bookHomeURL);
+        var found = await akasha.findRendersTo(
+            this.array.options.config, metadata.bookHomeURL);
         if (!found) {
             throw new Error("Did not find document for bookHomeURL="+ metadata.bookHomeURL);
         }
@@ -82,7 +209,8 @@ class EBookToCList extends akasha.mahabhuta.CustomElement {
         } else {
             throw new Error("Strange foundDir for bookHomeURL="+ bookHomeURL +' '+ util.inspect(found));
         }
-        let contents = await fs.readFile(path.join(foundDir, found.foundPathWithinDir), 'utf8');
+        let contents = await fs.readFile(
+            path.join(foundDir, found.foundPathWithinDir), 'utf8');
         // let document = await akasha.readDocument(this.array.options.config, bookHomeURL);
         var $toc = cheerio.load(contents);
 
@@ -126,7 +254,40 @@ class EBookToCList extends akasha.mahabhuta.CustomElement {
     }
 }
 
-class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
+const calculatePageTitle = async (config, docpath, href) => {
+
+    var uHref = url.parse(href, true, true);
+    if (!path.isAbsolute(uHref.pathname)) {
+        uHref.pathname = path.join(
+            path.dirname(docpath), 
+            uHref.pathname);
+        // console.log(`***** AnchorCleanup FIXED href to ${uHref.pathname}`);
+    }
+    var found = await akasha.findRendersTo(config, uHref.pathname);
+    if (!found) {
+        throw new Error(`Did not find ${href} in ${util.inspect(config.documentDirs)}`);
+    }
+    if (found.foundIsDirectory) {
+        found = await akasha.findRendersTo(config, path.join(uHref.pathname, "index.html"));
+        if (!found) {
+            throw new Error(`Did not find ${href} in ${util.inspect(documentDirs)}`);
+        }
+    }
+    var renderer = config.findRendererPath(found.foundFullPath);
+    if (renderer && renderer.metadata) {
+        try {
+            var docmeta = await renderer.metadata(found.foundDir, found.foundPathWithinDir);
+        } catch(err) {
+            throw new Error(`Could not retrieve document metadata for ${found.foundDir} ${found.foundPathWithinDir} because ${err}`);
+        }
+        return docmeta.title;
+    } else {
+        // Not possible to find title
+        return '';
+    }
+};
+
+class EBookNavigationHeader extends mahabhuta.CustomElement {
     get elementName() { return "ebook-navigation-header"; }
     async process($element, metadata, dirty) {
 
@@ -142,7 +303,8 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
         var tocLabel = $element.attr('toc-label');
         if (!tocLabel) tocLabel = "Table of Contents";
         var foundDir;
-        var found = await akasha.findRendersTo(this.array.options.config, metadata.bookHomeURL);
+        var found = await akasha.findRendersTo(
+            this.array.options.config, metadata.bookHomeURL);
         // console.log(`ebook-navigation-header ${metadata.bookHomeURL} findRendersTo ==> ${util.inspect(found)}`);
 
         if (!found) {
@@ -159,8 +321,9 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
 
         // console.log(`ebook-navigation-header reading file ${path.join(foundDir, found.foundPathWithinDir)} ... ${foundDir} ... ${found.foundPathWithinDir}`);
 
-        let contents = await fs.readFile(path.join(foundDir, found.foundPathWithinDir), 'utf8');
-        let document = await akasha.readDocument(this.array.options.config, bookHomeURL);
+        let contents = await fs.readFile(
+            path.join(foundDir, found.foundPathWithinDir), 'utf8');
+        // let document = await akasha.readDocument(this.array.options.config, bookHomeURL);
         // console.log(`ebook-navigation-header found document for ${bookHomeURL} - ${util.inspect(document)}`);
         // console.log(`ebook-navigation-header ${booktoc} ${contents}`);
 
@@ -203,10 +366,10 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
         // Then trim that off from the file being considered, giving us
         // the path of that file within the eBook directory.  That makes
         // the path comparable to the paths in toc.html.
-        var docPathInEbook =
-            bookHomePath.length > 0
-            ? metadata.document.relrender.substring(bookHomePath.length + 1)
-            : metadata.document.relrender;
+        // var docPathInEbook =
+        //     bookHomePath.length > 0
+        //     ? metadata.document.relrender.substring(bookHomePath.length + 1)
+        //     : metadata.document.relrender;
 
         $toc('nav ol li a').each((i, elem) => {
             let tochref = $toc(elem).attr('href');
@@ -229,7 +392,15 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
             });
             // console.log('TOC LINK '+ $(elem).attr('href'));
         });
-        // console.log(util.inspect(readingOrder));
+        for (let item of readingOrder) {
+            if (!item.title || item.title === '') {
+                item.title = await calculatePageTitle(
+                    this.array.options.config,
+                    metadata.document.path,
+                    item.href);
+            }
+        }
+        // console.log(`EBookNavigationHeader bookHomeURL ${metadata.bookHomeURL} ${util.inspect(readingOrder)}`);
 
         var foundInTOC = false;
         var TOCindex;
@@ -250,7 +421,7 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
 
         console.log('PREV '+ PREVindex +' '+ util.inspect(readingOrder[PREVindex]));
 
-        console.log('NEXT '+ NEXTindex +' '+ util.inspect(readingOrder[NEXTindex])); */
+        console.log('NEXT '+ NEXTindex +' '+ util.inspect(readingOrder[NEXTindex])); /* */
 
         // Here, look for current in that list.
         // Determine PREV and NEXT
@@ -258,6 +429,15 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
 
         // console.log(`EBookNavigationHeader for ${metadata.document.path} tochtml ${$toc.html('nav > ol')}`);
 
+        let logoImage = eBookLogoImage($element, metadata);
+        let noLogoImage = eBookNoLogoImage($element, metadata);
+        let logoHeight = eBookLogoHeight($element, metadata);
+        let logoWidth = eBookLogoWidth($element, metadata);
+        let bookTitle = eBookTitle($element, metadata);
+        let bookSubTitle = eBookSubTitle($element, metadata);
+        let bookAuthor = eBookAuthor($element, metadata);
+
+        // TODO Maybe use readDocument to read bookHomeURL to gather some of this?
         return akasha.partial(this.array.options.config, template, {
             divclass,
             divid,
@@ -270,19 +450,14 @@ class EBookNavigationHeader extends akasha.mahabhuta.CustomElement {
             prevtitle: readingOrder[PREVindex] ? readingOrder[PREVindex].title : "",
             nexthref: readingOrder[NEXTindex] ? readingOrder[NEXTindex].href : "",
             nexttitle: readingOrder[NEXTindex] ? readingOrder[NEXTindex].title : "",
-            logoImage: typeof document.metadata !== 'undefined' ? document.metadata.logoImage : undefined,
-            noLogoImage: typeof document.metadata === 'undefined' || typeof document.metadata.logoImage === 'undefined' || !document.metadata.logoImage
-                            ? "true" : "false",
-            bookHomeURL,
-            logoWidth: document.metadata.logoWidth,
-            bookTitle: document.metadata.bookTitle,
-            bookSubTitle: document.metadata.bookSubTitle,
-            bookAuthor: document.metadata.bookAuthor
+            logoImage, noLogoImage, logoWidth, logoHeight,
+            bookHomeURL, bookTitle, bookSubTitle, bookAuthor,
+            publicationDate: metadata.publicationDate
         });
     }
 }
 
-class EBookNameplateBlock extends akasha.mahabhuta.CustomElement {
+class EBookNameplateBlock extends mahabhuta.CustomElement {
     get elementName() { return "ebook-nameplate-block"; }
     async process($element, metadata, dirty) {
         var bookHomeURL = metadata.bookHomeURL;
@@ -293,17 +468,45 @@ class EBookNameplateBlock extends akasha.mahabhuta.CustomElement {
         var divclass = $element.attr('class');
         var divid    = $element.attr('id');
         if (!template) template = "ebook-nameplate-block.html.ejs";
-        let document = await akasha.readDocument(this.array.options.config, bookHomeURL);
+
+        let bookTitle = eBookTitle($element, metadata);
+        let bookSubTitle = eBookSubTitle($element, metadata);
+        let bookAuthor = eBookAuthor($element, metadata);
+        let authors = typeof metadata.ebook !== 'undefined' 
+                ? metadata.ebook.authors : metadata.authors;
+        let published = typeof metadata.ebook !== 'undefined' 
+                ? metadata.ebook.published : metadata.published;
+        let language = typeof metadata.ebook !== 'undefined' 
+                ? metadata.ebook.language : metadata.language;
+        let source = typeof metadata.ebook !== 'undefined' 
+                ? metadata.ebook.source : metadata.source;
+        if (!bookTitle || !bookSubTitle 
+         || !bookAuthor || !authors 
+         || !published || !language || !source) {
+            let document = await akasha.readDocument(
+                this.array.options.config,
+                bookHomeURL
+            );
+            bookTitle = typeof document.metadata.ebook !== 'undefined'
+                ? document.metadata.ebook.bookTitle : document.metadata.bookTitle;
+            bookSubTitle = typeof document.metadata.ebook !== 'undefined'
+                ? document.metadata.ebook.bookSubTitle : document.metadata.bookSubTitle;
+            bookAuthor = typeof document.metadata.ebook !== 'undefined'
+                ? document.metadata.ebook.bookAuthor : document.metadata.bookAuthor;
+            authors = typeof document.metadata.ebook !== 'undefined'
+                ? document.metadata.ebook.authors : document.metadata.authors;
+            published = typeof document.metadata.ebook !== 'undefined'
+                ? document.metadata.ebook.published : document.metadata.published;
+            language = typeof document.metadata.ebook !== 'undefined'
+                ? document.metadata.ebook.language : document.metadata.language;
+            source = typeof document.metadata.ebook !== 'undefined'
+                ? document.metadata.ebook.source : document.metadata.source;
+        }
         return akasha.partial(this.array.options.config, template, {
-            divclass,
-            divid,
-            bookTitle: document.metadata.bookTitle,
-            bookSubTitle: document.metadata.bookSubTitle,
-            bookAuthor: document.metadata.bookAuthor,
-            authors: document.metadata.authors ? document.metadata.authors : document.metadata.bookAuthor,
-            published: document.metadata.published,
-            language: document.metadata.language,
-            source: document.metadata.source
+            divclass, divid,
+            bookTitle, bookSubTitle,
+            bookAuthor, authors,
+            published, language, source
         });
     }
 }
