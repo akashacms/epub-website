@@ -161,7 +161,7 @@ class EBookPageHeader extends mahabhuta.CustomElement {
         // console.log(`EBookPageHeader ebook-page header readDocument bookHomeURL ${bookHomeURL}`);
         // let document = await akasha.readDocument(this.array.options.config, bookHomeURL);
         // console.log(`EBookPageHeader ebook-page header found document for bookHomeURL ${bookHomeURL} `, document);
-        // console.log(`ebook-page-header ${logoWidth} ${logoHeight} ${bookHomeURL} ${util.inspect(document.metadata)}`);
+        // console.log(`ebook-page-header ${metadata.document.path} ${logoImage} ${logoWidth} ${logoHeight} ${bookHomeURL} bookTitle ${bookTitle} bookAuthor ${bookAuthor}`);
         return akasha.partial(this.array.options.config, template, {
             divclass,
             divid,
@@ -411,9 +411,9 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
                 TOCindex = i;
             }
         }
-        var PREVindex = TOCindex - 1;
+        var PREVindex = !foundInTOC ? -1 : TOCindex - 1;
         if (PREVindex < 0) PREVindex = readingOrder.length - 1;
-        var NEXTindex = TOCindex + 1;
+        var NEXTindex = !foundInTOC ? 9999999 : TOCindex + 1;
         if (NEXTindex >= readingOrder.length) NEXTindex = 0;
 
         /* if (!foundInTOC) console.log("Did not find "+ metadata.document.renderTo +" in TOC");
