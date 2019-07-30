@@ -1,0 +1,9 @@
+<div class="blog-indexes">
+    <%
+    for (var docno = 0; docno < documents.length; docno++) {
+        var doc = documents[docno];
+        %>
+        <a href="/<%= doc.renderpath %>"><h4><%= doc.metadata.title %></h4></a>
+        <span><%= doc.metadata.teaser %></span>
+    <% } %>
+</div>

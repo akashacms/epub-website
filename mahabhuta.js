@@ -497,6 +497,33 @@ class EBookNameplateBlock extends mahabhuta.CustomElement {
     }
 }
 
+class EBookIndex extends mahabhuta.CustomElement {
+    get elementName() { return "ebook-index"; }
+    async process($element, metadata, dirty) {
+        var bookHomeURL = metadata.bookHomeURL;
+        if (!bookHomeURL) {
+           throw new Error("No bookHomeURL in metadata");
+        }
+        var template = $element.attr('template');
+        var divclass = $element.attr('class');
+        var divid    = $element.attr('id');
+        if (!template) template = "ebook-index.html.ejs";
+
+        // console.log(`ebook-index metadata.bookIndexLayout ${metadata.bookIndexLayout} rootPath ${path.dirname(metadata.document.path)}`);
+
+        let documents = await akasha.documentSearch(this.array.options.config, {
+            pathmatch: undefined,
+            renderers: [ akasha.HTMLRenderer ],
+            layouts: metadata.bookIndexLayout ? [ metadata.bookIndexLayout ] : undefined,
+            rootPath: path.dirname(metadata.document.path)
+        });
+        // console.log(`ebook-index `, documents);
+        return akasha.partial(this.array.options.config, template, {
+            divclass, divid,
+            documents
+        });
+    }
+}
 
 module.exports.mahabhutaArray = function(options) {
     let ret = new akasha.mahabhuta.MahafuncArray("epub-website", options);
@@ -504,6 +531,7 @@ module.exports.mahabhutaArray = function(options) {
     ret.addMahafunc(new EBookToCList());
     ret.addMahafunc(new EBookNavigationHeader());
     ret.addMahafunc(new EBookNameplateBlock());
+    ret.addMahafunc(new EBookIndex());
     return ret;
 }
 
