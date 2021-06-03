@@ -10,30 +10,31 @@ const relative  = require('relative');
 
 const readTOC = async (config, bookHomeURL) => {
 
-    var foundDir;
+    const documents = (await akasha.filecache).documents;
+    const found = documents.find(bookHomeURL);
 
-    var found = await akasha.findRendersTo(config, bookHomeURL);
-    if (!found) {
-        throw new Error("Did not find document for bookHomeURL="+ bookHomeURL);
-    }
+    // var found = await akasha.findRendersTo(config, bookHomeURL);
+    // if (!found) {
+    //    throw new Error("Did not find document for bookHomeURL="+ bookHomeURL);
+    // }
 
-    if (typeof found.foundDir === 'string') {
-        foundDir = found.foundDir;
-    } else if (found.foundDir && found.foundDir.src) {
-        foundDir = found.foundDir.src;
+    let foundDir;
+
+    if (typeof found.sourcePath === 'string') {
+        foundDir = found.sourcePath;
     } else {
         throw new Error("Strange foundDir for bookHomeURL="+ bookHomeURL +' '+ util.inspect(found));
     }
 
     let contents = await fs.readFile(
-            path.join(foundDir, found.foundPathWithinDir), 'utf8');
-    var $toc = cheerio.load(contents);
+            path.join(foundDir, found.pathInSource), 'utf8');
+            let $toc = cheerio.load(contents);
     return $toc;
 }
 
 const eBookLogoImage = ($element, metadata) => {
     let logoImage;
-    var logoURLAttr  = $element.attr('logo-url');
+    let logoURLAttr  = $element.attr('logo-url');
     if (typeof logoURLAttr !== 'undefined') {
         logoImage = logoURLAttr;
     }
@@ -172,6 +173,8 @@ class EBookPageHeader extends mahabhuta.CustomElement {
         var divclass = $element.attr('class');
         var divid    = $element.attr('id');
 
+        // TODO - doesn't this need to read metadata from the document at bookHomeURL?
+
         let logoImage = eBookLogoImage($element, metadata);
         let noLogoImage = eBookNoLogoImage($element, metadata);
         let logoHeight = eBookLogoHeight($element, metadata);
@@ -272,28 +275,42 @@ const calculatePageTitle = async (config, docpath, href) => {
             uHref.pathname);
         // console.log(`***** AnchorCleanup FIXED href to ${uHref.pathname}`);
     }
-    var found = await akasha.findRendersTo(config, uHref.pathname);
+
+    const documents = (await akasha.filecache).documents;
+    const found = documents.find(uHref.pathname);
     if (!found) {
         throw new Error(`Did not find ${href} in ${util.inspect(config.documentDirs)}`);
     }
-    if (found.foundIsDirectory) {
-        found = await akasha.findRendersTo(config, path.join(uHref.pathname, "index.html"));
+
+    // var found = await akasha.findRendersTo(config, uHref.pathname);
+    // if (!found) {
+    //    throw new Error(`Did not find ${href} in ${util.inspect(config.documentDirs)}`);
+    // }
+    if (found.isDirectory) {
+        found = documents.find(path.join(uHref.pathname, "index.html"));
+        // found = await akasha.findRendersTo(config, path.join(uHref.pathname, "index.html"));
         if (!found) {
             throw new Error(`Did not find ${href} in ${util.inspect(documentDirs)}`);
         }
     }
-    var renderer = config.findRendererPath(found.foundFullPath);
-    if (renderer && renderer.metadata) {
-        try {
-            var docmeta = await renderer.metadata(found.foundDir, found.foundPathWithinDir);
-        } catch(err) {
-            throw new Error(`Could not retrieve document metadata for ${found.foundDir} ${found.foundPathWithinDir} because ${err}`);
-        }
-        return docmeta.title;
+    if (found && found.docMetadata && found.docMetadata.title) {
+        return found.docMetadata.title;
     } else {
         // Not possible to find title
         return '';
     }
+    // var renderer = config.findRendererPath(found.path);
+    // if (renderer && renderer.metadata) {
+    //    try {
+    //        var docmeta = await renderer.metadata(found.sourcePath, found.foundPathWithinDir);
+    //    } catch(err) {
+    //        throw new Error(`Could not retrieve document metadata for ${found.foundDir} ${found.foundPathWithinDir} because ${err}`);
+    //    }
+    //    return docmeta.title;
+    // } else {
+    //    // Not possible to find title
+    //    return '';
+    // }
 };
 
 class EBookNavigationHeader extends mahabhuta.CustomElement {
@@ -513,7 +530,7 @@ class EBookIndex extends mahabhuta.CustomElement {
 
         let documents = await akasha.documentSearch(this.array.options.config, {
             pathmatch: undefined,
-            renderers: [ akasha.HTMLRenderer ],
+            // renderers: [ akasha.HTMLRenderer ],
             layouts: metadata.bookIndexLayout ? [ metadata.bookIndexLayout ] : undefined,
             rootPath: path.dirname(metadata.document.path)
         });
