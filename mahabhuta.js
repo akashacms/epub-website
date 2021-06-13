@@ -20,15 +20,8 @@ const readTOC = async (config, bookHomeURL) => {
 
     let foundDir;
 
-    if (typeof found.sourcePath === 'string') {
-        foundDir = found.sourcePath;
-    } else {
-        throw new Error("Strange foundDir for bookHomeURL="+ bookHomeURL +' '+ util.inspect(found));
-    }
-
-    let contents = await fs.readFile(
-            path.join(foundDir, found.pathInSource), 'utf8');
-            let $toc = cheerio.load(contents);
+    let contents = await fs.readFile(found.fspath, 'utf8');
+    let $toc = cheerio.load(contents);
     return $toc;
 }
 
