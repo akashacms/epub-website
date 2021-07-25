@@ -2,8 +2,28 @@
     <%
     for (var docno = 0; docno < documents.length; docno++) {
         var doc = documents[docno];
+        var title;
+        var teaser;
+        if (typeof doc.metadata !== 'undefined'
+         && typeof doc.metadata.title !== 'undefined') {
+             title = doc.metadata.title;
+        } else if (typeof doc.docMetadata !== 'undefined'
+         && typeof doc.docMetadata.title !== 'undefined') {
+             title = doc.docMetadata.title;
+        } else {
+            title = doc.renderPath;
+        }
+        if (typeof doc.metadata !== 'undefined'
+         && typeof doc.metadata.teaser !== 'undefined') {
+             teaser = doc.metadata.teaser;
+        } else if (typeof doc.docMetadata !== 'undefined'
+         && typeof doc.docMetadata.teaser !== 'undefined') {
+             teaser = doc.docMetadata.teaser;
+        }
         %>
-        <a href="/<%= doc.renderpath %>"><h4><%= doc.metadata.title %></h4></a>
-        <span><%= doc.metadata.teaser %></span>
+        <a href="/<%= doc.renderpath %>"><h4><%= title %></h4></a>
+        <% if (typeof teaser !== 'undefined') { %>
+        <span><%= teaser %></span>
+        <% } %>
     <% } %>
 </div>
