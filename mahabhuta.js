@@ -521,7 +521,9 @@ class EBookIndex extends mahabhuta.CustomElement {
 
         // console.log(`ebook-index metadata.bookIndexLayout ${metadata.bookIndexLayout} rootPath ${path.dirname(metadata.document.path)}`);
 
-        let documents = await akasha.documentSearch(this.array.options.config, {
+        const filecache = await akasha.filecache;
+
+        let documents = filecache.documents.search(this.array.options.config, {
             pathmatch: undefined,
             // renderers: [ akasha.HTMLRenderer ],
             layouts: metadata.bookIndexLayout ? [ metadata.bookIndexLayout ] : undefined,
