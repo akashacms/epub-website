@@ -479,10 +479,9 @@ class EBookNameplateBlock extends mahabhuta.CustomElement {
         if (!bookTitle || !bookSubTitle 
          || !bookAuthor || !authors 
          || !published || !language || !source) {
-            let document = await akasha.readDocument(
-                this.array.options.config,
-                bookHomeURL
-            );
+
+            const documents = (await akasha.filecache).documents;
+            let document = await documents.find(bookHomeURL);
             bookTitle = typeof document.metadata.ebook !== 'undefined'
                 ? document.metadata.ebook.bookTitle : document.metadata.bookTitle;
             bookSubTitle = typeof document.metadata.ebook !== 'undefined'
