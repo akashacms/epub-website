@@ -6,8 +6,8 @@
   "author": "David Herron <david@davidherron.com>",
   "license": "ISC",
   "dependencies": {
-    "cheerio": ">=0.19.x",
-    "fs-extra": ">=4.0.1",
-    "relative": "*"
+    "cheerio": "1.0.0-rc.12",
+    "fs-extra": ">=11.2.x",
+    "relative": "^3.0.x"
   }
 }
