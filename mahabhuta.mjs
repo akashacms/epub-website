@@ -1,17 +1,17 @@
 
-const akasha    = require('akasharender');
+import akasha from 'akasharender';
 const mahabhuta = akasha.mahabhuta;
-const cheerio   = require('cheerio');
-const url       = require('url');
-const util      = require('util');
-const fs        = require('fs-extra');
-const path      = require('path');
-const relative  = require('relative');
+import * as cheerio from 'cheerio';
+import url from 'node:url';
+import util from 'node:util';
+import { promises as fsp } from 'node:fs';
+import path from 'node:path';
+import relative from 'relative';
 
 const readTOC = async (config, bookHomeURL) => {
 
-    const documents = (await akasha.filecache).documents;
-    const found = documents.find(bookHomeURL);
+    const documents = akasha.filecache.documentsCache;
+    const found = await documents.find(bookHomeURL);
 
     // var found = await akasha.findRendersTo(config, bookHomeURL);
     // if (!found) {
@@ -20,7 +20,7 @@ const readTOC = async (config, bookHomeURL) => {
 
     let foundDir;
 
-    let contents = await fs.readFile(found.fspath, 'utf8');
+    let contents = await fsp.readFile(found.fspath, 'utf8');
     let $toc = cheerio.load(contents);
     return $toc;
 }
@@ -536,7 +536,7 @@ class EBookIndex extends mahabhuta.CustomElement {
     }
 }
 
-module.exports.mahabhutaArray = function(options) {
+export function mahabhutaArray(options) {
     let ret = new akasha.mahabhuta.MahafuncArray("epub-website", options);
     ret.addMahafunc(new EBookPageHeader());
     ret.addMahafunc(new EBookToCList());
