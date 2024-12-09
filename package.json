@@ -2,7 +2,8 @@
   "name": "epub-website",
   "version": "0.7.0",
   "description": "Tools to generate a website from an AkashaEPUB source document",
-  "main": "index.js",
+  "main": "index.mjs",
+  "type": "module",
   "author": "David Herron <david@davidherron.com>",
   "license": "ISC",
   "dependencies": {

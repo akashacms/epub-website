@@ -4,6 +4,8 @@ const mahabhuta = akasha.mahabhuta;
 import path from 'node:path';
 import { mahabhutaArray } from './mahabhuta.mjs';
 
+const __dirname = import.meta.dirname;
+
 const pluginName = "epub-website";
 
 export default class EPUBWebsitePlugin extends akasha.Plugin {

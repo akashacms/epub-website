@@ -8,6 +8,8 @@ import { promises as fsp } from 'node:fs';
 import path from 'node:path';
 import relative from 'relative';
 
+const __dirname = import.meta.dirname;
+
 const readTOC = async (config, bookHomeURL) => {
 
     const documents = akasha.filecache.documentsCache;
@@ -269,8 +271,8 @@ const calculatePageTitle = async (config, docpath, href) => {
         // console.log(`***** AnchorCleanup FIXED href to ${uHref.pathname}`);
     }
 
-    const documents = (await akasha.filecache).documents;
-    const found = documents.find(uHref.pathname);
+    const documents = akasha.filecache.documentsCache;
+    const found = await documents.find(uHref.pathname);
     if (!found) {
         throw new Error(`Did not find ${href} in ${util.inspect(config.documentDirs)}`);
     }
@@ -280,7 +282,7 @@ const calculatePageTitle = async (config, docpath, href) => {
     //    throw new Error(`Did not find ${href} in ${util.inspect(config.documentDirs)}`);
     // }
     if (found.isDirectory) {
-        found = documents.find(path.join(uHref.pathname, "index.html"));
+        found = await documents.find(path.join(uHref.pathname, "index.html"));
         // found = await akasha.findRendersTo(config, path.join(uHref.pathname, "index.html"));
         if (!found) {
             throw new Error(`Did not find ${href} in ${util.inspect(documentDirs)}`);
@@ -480,7 +482,7 @@ class EBookNameplateBlock extends mahabhuta.CustomElement {
          || !bookAuthor || !authors 
          || !published || !language || !source) {
 
-            const documents = (await akasha.filecache).documents;
+            const documents = akasha.filecache.documentsCache;
             let document = await documents.find(bookHomeURL);
             bookTitle = typeof document.metadata.ebook !== 'undefined'
                 ? document.metadata.ebook.bookTitle : document.metadata.bookTitle;
@@ -520,10 +522,8 @@ class EBookIndex extends mahabhuta.CustomElement {
 
         // console.log(`ebook-index metadata.bookIndexLayout ${metadata.bookIndexLayout} rootPath ${path.dirname(metadata.document.path)}`);
 
-        const filecache = await akasha.filecache;
-
-        let documents = filecache.documents.search(this.array.options.config, {
-            pathmatch: undefined,
+        let documents = await akasha.filecache.documentsCache.search(this.array.options.config, {
+            // pathmatch: undefined,
             // renderers: [ akasha.HTMLRenderer ],
             layouts: metadata.bookIndexLayout ? [ metadata.bookIndexLayout ] : undefined,
             rootPath: path.dirname(metadata.document.path)
