@@ -1,17 +1,24 @@
 
-const akasha    = require('akasharender');
+import akasha, {
+    Configuration,
+    CustomElement,
+    Munger,
+    PageProcessor
+} from 'akasharender';
 const mahabhuta = akasha.mahabhuta;
-const cheerio   = require('cheerio');
-const url       = require('url');
-const util      = require('util');
-const fs        = require('fs-extra');
-const path      = require('path');
-const relative  = require('relative');
+import * as cheerio from 'cheerio';
+import url from 'node:url';
+import util from 'node:util';
+import { promises as fsp } from 'node:fs';
+import path from 'node:path';
+import relative from 'relative';
+
+const __dirname = import.meta.dirname;
 
 const readTOC = async (config, bookHomeURL) => {
 
-    const documents = (await akasha.filecache).documents;
-    const found = documents.find(bookHomeURL);
+    const documents = akasha.filecache.documentsCache;
+    const found = await documents.find(bookHomeURL);
 
     // var found = await akasha.findRendersTo(config, bookHomeURL);
     // if (!found) {
@@ -20,7 +27,7 @@ const readTOC = async (config, bookHomeURL) => {
 
     let foundDir;
 
-    let contents = await fs.readFile(found.fspath, 'utf8');
+    let contents = await fsp.readFile(found.fspath, 'utf8');
     let $toc = cheerio.load(contents);
     return $toc;
 }
@@ -154,7 +161,7 @@ const eBookHeaderHeight = ($element, metadata) => {
  *
  * THAT file is to then contain metadata describing the book.
  */
-class EBookPageHeader extends mahabhuta.CustomElement {
+class EBookPageHeader extends CustomElement {
     get elementName() { return "ebook-page-header"; }
     async process($element, metadata, dirty) {
         var bookHomeURL = metadata.bookHomeURL;
@@ -181,7 +188,7 @@ class EBookPageHeader extends mahabhuta.CustomElement {
         // let document = await akasha.readDocument(this.array.options.config, bookHomeURL);
         // console.log(`EBookPageHeader ebook-page header found document for bookHomeURL ${bookHomeURL} `, document);
         // console.log(`ebook-page-header ${metadata.document.path} ${logoImage} ${logoWidth} ${logoHeight} ${bookHomeURL} bookTitle ${bookTitle} bookAuthor ${bookAuthor}`);
-        return akasha.partial(this.array.options.config, template, {
+        return this.akasha.partial(this.config, template, {
             divclass,
             divid,
             bookHomeURL,
@@ -198,7 +205,7 @@ class EBookPageHeader extends mahabhuta.CustomElement {
 	}
 }
 
-class EBookToCList extends mahabhuta.CustomElement {
+class EBookToCList extends CustomElement {
     get elementName() { return "ebook-toc-menu"; }
     async process($element, metadata, dirty) {
         var bookHomeURL = metadata.bookHomeURL;
@@ -215,7 +222,7 @@ class EBookToCList extends mahabhuta.CustomElement {
         let anchortype = $element.data('anchortype');
         let anchorclasses = $element.data('anchorclasses');
 
-        var $toc = await readTOC(this.array.options.config, metadata.bookHomeURL);
+        var $toc = await readTOC(this.config, metadata.bookHomeURL);
 
         if (olclasses && Array.isArray(olclasses)) {
             for (let olclass of olclasses) {
@@ -269,8 +276,8 @@ const calculatePageTitle = async (config, docpath, href) => {
         // console.log(`***** AnchorCleanup FIXED href to ${uHref.pathname}`);
     }
 
-    const documents = (await akasha.filecache).documents;
-    const found = documents.find(uHref.pathname);
+    const documents = akasha.filecache.documentsCache;
+    const found = await documents.find(uHref.pathname);
     if (!found) {
         throw new Error(`Did not find ${href} in ${util.inspect(config.documentDirs)}`);
     }
@@ -280,7 +287,7 @@ const calculatePageTitle = async (config, docpath, href) => {
     //    throw new Error(`Did not find ${href} in ${util.inspect(config.documentDirs)}`);
     // }
     if (found.isDirectory) {
-        found = documents.find(path.join(uHref.pathname, "index.html"));
+        found = await documents.find(path.join(uHref.pathname, "index.html"));
         // found = await akasha.findRendersTo(config, path.join(uHref.pathname, "index.html"));
         if (!found) {
             throw new Error(`Did not find ${href} in ${util.inspect(documentDirs)}`);
@@ -306,7 +313,7 @@ const calculatePageTitle = async (config, docpath, href) => {
     // }
 };
 
-class EBookNavigationHeader extends mahabhuta.CustomElement {
+class EBookNavigationHeader extends CustomElement {
     get elementName() { return "ebook-navigation-header"; }
     async process($element, metadata, dirty) {
 
@@ -322,7 +329,7 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
         var tocLabel = $element.attr('toc-label');
         if (!tocLabel) tocLabel = "Table of Contents";
         
-        var $toc = await readTOC(this.array.options.config, metadata.bookHomeURL);
+        var $toc = await readTOC(this.config, metadata.bookHomeURL);
 
         if (typeof showtoc !== 'undefined' && showtoc === 'true') {
             // Add .dropdown-menu so we can use Bootstrap dropdowns
@@ -434,7 +441,7 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
         let bookSubTitle = eBookSubTitle($element, metadata);
         let bookAuthor = eBookAuthor($element, metadata);
 
-        return akasha.partial(this.array.options.config, template, {
+        return this.akasha.partial(this.config, template, {
             divclass,
             divid,
             tochtml: (typeof showtoc !== 'undefined' && showtoc === 'true') ? $toc.html('nav > ol') : "",
@@ -453,7 +460,7 @@ class EBookNavigationHeader extends mahabhuta.CustomElement {
     }
 }
 
-class EBookNameplateBlock extends mahabhuta.CustomElement {
+class EBookNameplateBlock extends CustomElement {
     get elementName() { return "ebook-nameplate-block"; }
     async process($element, metadata, dirty) {
         var bookHomeURL = metadata.bookHomeURL;
@@ -480,7 +487,7 @@ class EBookNameplateBlock extends mahabhuta.CustomElement {
          || !bookAuthor || !authors 
          || !published || !language || !source) {
 
-            const documents = (await akasha.filecache).documents;
+            const documents = akasha.filecache.documentsCache;
             let document = await documents.find(bookHomeURL);
             bookTitle = typeof document.metadata.ebook !== 'undefined'
                 ? document.metadata.ebook.bookTitle : document.metadata.bookTitle;
@@ -497,7 +504,7 @@ class EBookNameplateBlock extends mahabhuta.CustomElement {
             source = typeof document.metadata.ebook !== 'undefined'
                 ? document.metadata.ebook.source : document.metadata.source;
         }
-        return akasha.partial(this.array.options.config, template, {
+        return this.akasha.partial(this.config, template, {
             divclass, divid,
             bookTitle, bookSubTitle,
             bookAuthor, authors,
@@ -506,7 +513,7 @@ class EBookNameplateBlock extends mahabhuta.CustomElement {
     }
 }
 
-class EBookIndex extends mahabhuta.CustomElement {
+class EBookIndex extends CustomElement {
     get elementName() { return "ebook-index"; }
     async process($element, metadata, dirty) {
         var bookHomeURL = metadata.bookHomeURL;
@@ -520,29 +527,32 @@ class EBookIndex extends mahabhuta.CustomElement {
 
         // console.log(`ebook-index metadata.bookIndexLayout ${metadata.bookIndexLayout} rootPath ${path.dirname(metadata.document.path)}`);
 
-        const filecache = await akasha.filecache;
-
-        let documents = filecache.documents.search(this.array.options.config, {
-            pathmatch: undefined,
+        let documents = await this.akasha.filecache.documentsCache.search(this.config, {
+            // pathmatch: undefined,
             // renderers: [ akasha.HTMLRenderer ],
             layouts: metadata.bookIndexLayout ? [ metadata.bookIndexLayout ] : undefined,
             rootPath: path.dirname(metadata.document.path)
         });
         // console.log(`ebook-index `, documents);
-        return akasha.partial(this.array.options.config, template, {
+        return this.akasha.partial(this.config, template, {
             divclass, divid,
             documents
         });
     }
 }
 
-module.exports.mahabhutaArray = function(options) {
+export function mahabhutaArray(
+    options,
+    config, // ?: Configuration,
+    akasha, // ?: any,
+    plugin  // ?: Plugin
+) {
     let ret = new akasha.mahabhuta.MahafuncArray("epub-website", options);
-    ret.addMahafunc(new EBookPageHeader());
-    ret.addMahafunc(new EBookToCList());
-    ret.addMahafunc(new EBookNavigationHeader());
-    ret.addMahafunc(new EBookNameplateBlock());
-    ret.addMahafunc(new EBookIndex());
+    ret.addMahafunc(new EBookPageHeader(config, akasha, plugin));
+    ret.addMahafunc(new EBookToCList(config, akasha, plugin));
+    ret.addMahafunc(new EBookNavigationHeader(config, akasha, plugin));
+    ret.addMahafunc(new EBookNameplateBlock(config, akasha, plugin));
+    ret.addMahafunc(new EBookIndex(config, akasha, plugin));
     return ret;
 }
 
